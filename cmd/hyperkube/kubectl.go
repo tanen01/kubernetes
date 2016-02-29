@@ -23,7 +23,7 @@ import (
 )
 
 func NewKubectlServer() *Server {
-	return &Server{
+	hks := &Server{
 		name:        "kubectl",
 		SimpleUsage: "Kubernetes command line client",
 		Long:        "Kubernetes command line client",
@@ -36,4 +36,10 @@ func NewKubectlServer() *Server {
 			return nil
 		},
 	}
+	if len(os.Args) > 2 {
+		app.AddFlags(hks.Flags(), os.Args[2])
+	} else {
+		app.AddFlags(hks.Flags(), "")
+	}
+	return hks
 }

@@ -19,6 +19,7 @@ package app
 import (
 	"os"
 
+	"github.com/spf13/pflag"
 	"k8s.io/kubernetes/pkg/kubectl/cmd"
 	cmdutil "k8s.io/kubernetes/pkg/kubectl/cmd/util"
 )
@@ -26,4 +27,18 @@ import (
 func Run() error {
 	cmd := cmd.NewKubectlCommand(cmdutil.NewFactory(nil), os.Stdin, os.Stdout, os.Stderr)
 	return cmd.Execute()
+}
+
+func AddFlags(fs *pflag.FlagSet, kubectlSubCmd string) {
+	cmd := cmd.NewKubectlCommand(cmdutil.NewFactory(nil), os.Stdin, os.Stdout, os.Stderr)
+	fs.AddFlagSet(cmd.LocalFlags())
+	if kubectlSubCmd == "" {
+		return
+	}
+	for _, child := range cmd.Commands() {
+		if child.Name() == kubectlSubCmd {
+			fs.AddFlagSet(child.LocalFlags())
+			return
+		}
+	}
 }
